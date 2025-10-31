@@ -22,7 +22,10 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await authApi.adminLogin(formData);
+    const response = await authApi.adminLogin({ 
+      emailOrPhone: formData.email, 
+      password: formData.password 
+    });
 
     if (response.error) {
       toast({

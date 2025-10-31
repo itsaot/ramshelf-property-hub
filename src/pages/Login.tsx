@@ -24,7 +24,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await authApi.login(formData);
+    const response = await authApi.login({ 
+      emailOrPhone: formData.email, 
+      password: formData.password 
+    });
 
     if (response.error) {
       toast({
