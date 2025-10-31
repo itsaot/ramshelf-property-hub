@@ -65,7 +65,7 @@ export const authApi = {
     firstName: string;
     lastName: string;
     role: 'tenant' | 'landlord';
-    phoneNumber?: string;
+    phone?: string;
   }) => apiCall('/auth/signup', {
     method: 'POST',
     body: JSON.stringify(userData),
