@@ -70,17 +70,24 @@ export const authApi = {
     body: JSON.stringify(userData),
   }),
 
-  login: (credentials: { email: string; password: string; role: 'tenant' | 'landlord' }) =>
-    apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
+  login: (credentials: { emailOrPhone: string; password: string }) =>
+  apiCall('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password,
     }),
+  }),
 
-  adminLogin: (credentials: { email: string; password: string }) =>
-    apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ ...credentials, role: 'admin' }),
+adminLogin: (credentials: { emailOrPhone: string; password: string }) =>
+  apiCall('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password,
+      role: 'admin',
     }),
+  }),
 
   getMe: () => apiCall('/auth/me'),
 
