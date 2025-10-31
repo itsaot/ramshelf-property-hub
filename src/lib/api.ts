@@ -7,7 +7,8 @@ export interface ApiResponse<T = any> {
 }
 
 // Helper function to get auth token
-const getAuthToken = () => localStorage.getItem('authToken');
+const getAuthToken = () => localStorage.getItem('auth_token');
+
 
 // Helper function to make API calls with enhanced logging
 async function apiCall<T>(
