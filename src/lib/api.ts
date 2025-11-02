@@ -59,17 +59,49 @@ async function apiCall<T>(
 
 // Auth API
 export const authApi = {
-  signup: (userData: {
+  signup: async (userData: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
     role: 'tenant' | 'landlord';
     phone?: string;
-  }) => apiCall('/auth/signup', {
-    method: 'POST',
-    body: JSON.stringify(userData),
-  }),
+    idDocument?: File;
+  }): Promise<ApiResponse> => {
+    const formData = new FormData();
+    formData.append('email', userData.email);
+    formData.append('password', userData.password);
+    formData.append('firstName', userData.firstName);
+    formData.append('lastName', userData.lastName);
+    formData.append('role', userData.role);
+    if (userData.phone) formData.append('phone', userData.phone);
+    if (userData.idDocument) formData.append('idDocument', userData.idDocument);
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+        mode: 'cors',
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        if (!response.ok) {
+          return { error: data.message || data.error || 'An error occurred' };
+        }
+        return { data };
+      } else {
+        return { error: 'Invalid response format from server' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Network error. Please check your connection.' };
+    }
+  },
 
   login: (credentials: { emailOrPhone: string; password: string }) =>
   apiCall('/auth/login', {

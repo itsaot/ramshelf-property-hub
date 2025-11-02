@@ -22,12 +22,17 @@ const Signup = () => {
     phoneNumber: "",
     role: "tenant" as "tenant" | "landlord",
   });
+  const [idDocument, setIdDocument] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await authApi.signup(formData);
+    const response = await authApi.signup({
+      ...formData,
+      phone: formData.phoneNumber,
+      ...(idDocument && { idDocument }),
+    });
 
     if (response.error) {
       toast({
@@ -136,6 +141,16 @@ const Signup = () => {
                     setFormData({ ...formData, password: e.target.value })
                   }
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="idDocument">ID Document (Optional)</Label>
+                <Input
+                  id="idDocument"
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setIdDocument(e.target.files?.[0] || null)}
                 />
               </div>
 
