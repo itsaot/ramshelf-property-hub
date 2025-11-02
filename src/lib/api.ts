@@ -20,6 +20,15 @@ async function apiCall<T>(
   
   try {
     const token = getAuthToken();
+    
+    // Check if this is a protected route (not login/signup)
+    const isProtectedRoute = !endpoint.includes('/auth/login') && !endpoint.includes('/auth/signup');
+    
+    if (isProtectedRoute && !token) {
+      console.warn('[API] ⚠️ No authentication token found. Protected routes require a valid token.');
+      console.warn('[API] Please log in to access this resource.');
+    }
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -46,6 +55,12 @@ async function apiCall<T>(
 
     if (!response.ok) {
       console.error('[API] Error response:', data);
+      
+      // Special handling for 401 errors when token is missing
+      if (response.status === 401 && !token) {
+        return { error: 'Authentication required. Please log in to continue.' };
+      }
+      
       return { error: data.message || data.error || 'An error occurred' };
     }
 
