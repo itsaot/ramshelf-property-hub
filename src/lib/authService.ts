@@ -117,39 +117,4 @@ export const authService = {
       return { error: error instanceof Error ? error.message : 'Network error' };
     }
   },
-
-    update: async (id: string, userData: {
-    firstName: string;
-    lastName: string;
-    phone?: string;
-  }): Promise<ApiResponse> => {
-    try {
-      const token = getAuthToken();
-      if (!token) return { error: 'No token provided. Please log in.' };
-
-      // Combine firstName + lastName for backend
-      const fullName = `${userData.firstName} ${userData.lastName}`;
-
-      const body = {
-        fullName,
-        phone: userData.phone,
-      };
-
-      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-      if (!response.ok) return { error: data.message || 'Update failed' };
-
-      return { data };
-    } catch (error) {
-      return { error: error instanceof Error ? error.message : 'Network error' };
-    }
-  },
 };
