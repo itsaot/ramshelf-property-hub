@@ -130,32 +130,25 @@ export const authApi = {
     }
   },
 
-  login: async (credentials: { emailOrPhone: string; password: string }) => {
-    console.log('🔐 Logging in with:', { emailOrPhone: credentials.emailOrPhone });
-    return apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        emailOrPhone: credentials.emailOrPhone,
-        password: credentials.password,
-      }),
-    });
-  },
+  login: (credentials: { emailOrPhone: string; password: string }) =>
+  apiCall('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password,
+    }),
+  }),
 
-  adminLogin: async (credentials: { emailOrPhone: string; password: string }) => {
-    console.log('👑 Admin logging in with:', { emailOrPhone: credentials.emailOrPhone });
-    return apiCall('/auth/admin/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        emailOrPhone: credentials.emailOrPhone,
-        password: credentials.password,
-      }),
-    });
-  },
+adminLogin: (credentials: { emailOrPhone: string; password: string }) =>
+  apiCall('/auth/admin/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password,
+    }),
+  }),
 
-  getMe: async () => {
-    console.log('👤 Fetching current user profile');
-    return apiCall('/auth/me');
-  },
+  getMe: () => apiCall('/auth/me'),
 
   forgotPassword: (email: string) =>
     apiCall('/auth/forgot-password', {
@@ -205,18 +198,13 @@ export const rentalsApi = {
 
 // Users API
 export const usersApi = {
-  getById: async (id: string) => {
-    console.log('👤 Fetching user by ID:', id);
-    return apiCall(`/users/${id}`);
-  },
+  getById: (id: string) => apiCall(`/users/${id}`),
 
-  update: async (id: string, userData: any) => {
-    console.log('✏️ Updating user profile:', id, userData);
-    return apiCall(`/users/${id}`, {
+  update: (id: string, userData: any) =>
+    apiCall(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
-    });
-  },
+    }),
 
   search: (query: string) => apiCall(`/users/search?q=${query}`),
 
@@ -236,30 +224,20 @@ export const usersApi = {
 
 // Admin API
 export const adminApi = {
-  getAnalytics: async () => {
-    console.log('📊 Fetching admin analytics');
-    return apiCall('/admin/analytics');
-  },
+  getAnalytics: () => apiCall('/admin/analytics'),
 
-  getFlags: async () => {
-    console.log('🚩 Fetching flagged content');
-    return apiCall('/admin/flags');
-  },
+  getFlags: () => apiCall('/admin/flags'),
 
-  updateUser: async (id: string, userData: any) => {
-    console.log('✏️ Admin updating user:', id, userData);
-    return apiCall(`/admin/users/${id}`, {
+  updateUser: (id: string, userData: any) =>
+    apiCall(`/admin/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(userData),
-    });
-  },
+    }),
 
-  deleteContent: async (type: string, id: string) => {
-    console.log('🗑️ Admin deleting content:', { type, id });
-    return apiCall(`/admin/content/${type}/${id}`, {
+  deleteContent: (type: string, id: string) =>
+    apiCall(`/admin/content/${type}/${id}`, {
       method: 'DELETE',
-    });
-  },
+    }),
 };
 
 // Reviews API
