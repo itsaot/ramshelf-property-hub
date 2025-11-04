@@ -22,18 +22,27 @@ async function apiCall<T>(
     const token = getAuthToken();
     
     // Check if this is a protected route (not login/signup)
-    const isProtectedRoute = !endpoint.includes('/auth/login') && !endpoint.includes('/auth/signup');
+    const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/signup');
     
-    if (isProtectedRoute && !token) {
-      console.warn('[API] ⚠️ No authentication token found. Protected routes require a valid token.');
-      console.warn('[API] Please log in to access this resource.');
+    if (!isAuthRoute && !token) {
+      console.warn('⚠️ No authentication token found. Please log in again.');
     }
     
+    // Build headers - don't set Content-Type if body is FormData (browser will set it with boundary)
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
+    
+    // Add Content-Type for JSON if not FormData
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    // ALWAYS add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('[API] ✓ Authorization header attached');
+    }
 
     const response = await fetch(url, {
       ...options,
@@ -56,9 +65,12 @@ async function apiCall<T>(
     if (!response.ok) {
       console.error('[API] Error response:', data);
       
-      // Special handling for 401 errors when token is missing
-      if (response.status === 401 && !token) {
-        return { error: 'Authentication required. Please log in to continue.' };
+      // Special handling for 401 errors
+      if (response.status === 401) {
+        console.error('[API] 401 Unauthorized - Token may be invalid or expired');
+        if (!token) {
+          return { error: 'Authentication required. Please log in to continue.' };
+        }
       }
       
       return { error: data.message || data.error || 'An error occurred' };
@@ -128,12 +140,11 @@ export const authApi = {
   }),
 
 adminLogin: (credentials: { emailOrPhone: string; password: string }) =>
-  apiCall('/auth/login', {
+  apiCall('/auth/admin/login', {
     method: 'POST',
     body: JSON.stringify({
       emailOrPhone: credentials.emailOrPhone,
       password: credentials.password,
-      role: 'admin',
     }),
   }),
 
