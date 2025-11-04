@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Shield } from "lucide-react";
-import { authApi } from "@/lib/api";
+import { authService } from "@/lib/authService";
 import { setAuthToken, setUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,8 +22,8 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await authApi.adminLogin({ 
-      emailOrPhone: formData.email, 
+    const response = await authService.adminLogin({ 
+      email: formData.email, 
       password: formData.password 
     });
 

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
-import { authApi } from "@/lib/api";
+import { authService } from "@/lib/authService";
 import { setAuthToken, setUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,8 +24,8 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await authApi.login({ 
-      emailOrPhone: formData.email, 
+    const response = await authService.login({ 
+      email: formData.email, 
       password: formData.password 
     });
 
