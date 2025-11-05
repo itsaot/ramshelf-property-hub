@@ -21,10 +21,14 @@ async function apiCall<T>(
   try {
     const token = getAuthToken();
     
-    // Check if this is a protected route (not login/signup)
-    const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/signup');
+    // Define public routes that don't need auth
+    const isPublicRoute = endpoint.includes('/auth/login') || 
+                          endpoint.includes('/auth/signup') ||
+                          (endpoint.includes('/rentals') && options.method === 'GET') ||
+                          endpoint.match(/^\/rentals\/[^\/]+$/) && options.method === 'GET';
     
-    if (!isAuthRoute && !token) {
+    // Only warn if it's a protected route and no token
+    if (!isPublicRoute && !token) {
       console.warn('⚠️ No authentication token found. Please log in again.');
     }
     
@@ -255,12 +259,48 @@ export const adminApi = {
   getAnalytics: () => apiCall('/admin/analytics'),
 
   getFlags: () => apiCall('/admin/flags'),
+  
+  // User management
+  getAllUsers: () => {
+    console.log('👥 [Admin] Fetching all users');
+    return apiCall('/admin/users');
+  },
 
-  updateUser: (id: string, userData: any) =>
-    apiCall(`/admin/users/${id}`, {
+  createUser: (userData: any) => {
+    console.log('👥 [Admin] Creating user', userData);
+    return apiCall('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  },
+
+  updateUser: (id: string, userData: any) => {
+    console.log(`👥 [Admin] Updating user ${id}`);
+    return apiCall(`/admin/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(userData),
-    }),
+    });
+  },
+
+  deleteUser: (id: string) => {
+    console.log(`👥 [Admin] Deleting user ${id}`);
+    return apiCall(`/admin/users/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Property management
+  getAllRentals: () => {
+    console.log('🏠 [Admin] Fetching all rentals');
+    return apiCall('/admin/rentals');
+  },
+
+  deleteRental: (id: string) => {
+    console.log(`🏠 [Admin] Deleting rental ${id}`);
+    return apiCall(`/admin/rentals/${id}`, {
+      method: 'DELETE',
+    });
+  },
 
   deleteContent: (type: string, id: string) =>
     apiCall(`/admin/content/${type}/${id}`, {

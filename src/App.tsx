@@ -10,6 +10,8 @@ import AdminLogin from "./pages/AdminLogin";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import LandlordProperties from "./pages/LandlordProperties";
+import UserManagement from "./pages/UserManagement";
+import PropertyManagement from "./pages/PropertyManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -50,6 +52,24 @@ const App = () => (
             element={
               <ProtectedRoute requireLandlord>
                 <LandlordProperties />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute requireAdmin>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/properties"
+            element={
+              <ProtectedRoute requireAdmin>
+                <PropertyManagement />
               </ProtectedRoute>
             }
           />
