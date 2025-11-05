@@ -133,6 +133,7 @@ export const authApi = {
   login: (credentials: { emailOrPhone: string; password: string }) =>
   apiCall('/auth/login', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       emailOrPhone: credentials.emailOrPhone,
       password: credentials.password,
