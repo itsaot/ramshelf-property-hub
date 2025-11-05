@@ -191,27 +191,37 @@ export const authApi = {
 export const rentalsApi = {
   getAll: (params?: { search?: string; minPrice?: number; maxPrice?: number }) => {
     const query = new URLSearchParams(params as any).toString();
+    console.log('🏠 [Rentals] Fetching all rentals (public)', params);
     return apiCall(`/rentals${query ? `?${query}` : ''}`);
   },
 
-  getById: (id: string) => apiCall(`/rentals/${id}`),
+  getById: (id: string) => {
+    console.log(`🏠 [Rentals] Fetching rental by ID (public): ${id}`);
+    return apiCall(`/rentals/${id}`);
+  },
 
-  create: (rentalData: any) =>
-    apiCall('/rentals', {
+  create: (rentalData: any) => {
+    console.log('🏠 [Rentals] Creating new rental (protected)', rentalData);
+    return apiCall('/rentals', {
       method: 'POST',
       body: JSON.stringify(rentalData),
-    }),
+    });
+  },
 
-  update: (id: string, rentalData: any) =>
-    apiCall(`/rentals/${id}`, {
+  update: (id: string, rentalData: any) => {
+    console.log(`🏠 [Rentals] Updating rental (protected): ${id}`, rentalData);
+    return apiCall(`/rentals/${id}`, {
       method: 'PUT',
       body: JSON.stringify(rentalData),
-    }),
+    });
+  },
 
-  delete: (id: string) =>
-    apiCall(`/rentals/${id}`, {
+  delete: (id: string) => {
+    console.log(`🏠 [Rentals] Deleting rental (protected): ${id}`);
+    return apiCall(`/rentals/${id}`, {
       method: 'DELETE',
-    }),
+    });
+  },
 };
 
 // Users API
