@@ -130,24 +130,41 @@ export const authApi = {
     }
   },
 
-  login: (credentials: { emailOrPhone: string; password: string }) =>
-  apiCall('/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      emailOrPhone: credentials.emailOrPhone,
-      password: credentials.password,
-    }),
-  }),
+  login: async (credentials: { emailOrPhone: string; password: string }) => {
+    console.log('🔐 [Auth] Attempting login...');
+    const result = await apiCall('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        emailOrPhone: credentials.emailOrPhone,
+        password: credentials.password,
+      }),
+    });
+    
+    if (result.data && typeof result.data === 'object' && 'token' in result.data) {
+      localStorage.setItem('authToken', result.data.token as string);
+      console.log('✅ [Auth] Token saved to localStorage');
+    }
+    
+    return result;
+  },
 
-adminLogin: (credentials: { emailOrPhone: string; password: string }) =>
-  apiCall('/auth/admin/login', {
-    method: 'POST',
-    body: JSON.stringify({
-      emailOrPhone: credentials.emailOrPhone,
-      password: credentials.password,
-    }),
-  }),
+  adminLogin: async (credentials: { emailOrPhone: string; password: string }) => {
+    console.log('🔐 [Auth] Attempting admin login...');
+    const result = await apiCall('/auth/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        emailOrPhone: credentials.emailOrPhone,
+        password: credentials.password,
+      }),
+    });
+    
+    if (result.data && typeof result.data === 'object' && 'token' in result.data) {
+      localStorage.setItem('authToken', result.data.token as string);
+      console.log('✅ [Auth] Admin token saved to localStorage');
+    }
+    
+    return result;
+  },
 
   getMe: () => apiCall('/auth/me'),
 
