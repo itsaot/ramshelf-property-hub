@@ -50,7 +50,11 @@ async function apiCall<T>(
     // ALWAYS add Authorization header if token exists
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API] ✓ Authorization header attached');
+      console.log('[API] ✓ Authorization header attached:', `Bearer ${token.substring(0, 20)}...`);
+    } else if (!isPublicRoute) {
+      console.error('[API] ❌ CRITICAL: Protected route called without token!');
+      console.error('[API] ❌ localStorage contents:', localStorage);
+      return { error: 'Authentication required. Please log in again.' };
     }
 
     const response = await fetch(url, {
