@@ -24,6 +24,7 @@ async function apiCall<T>(
   console.log(`[API] ${options.method || 'GET'} ${url}`);
   
   try {
+    let data: any = null; 
     const token = getAuthToken();
     
     // Define public routes that don't need auth
