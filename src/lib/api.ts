@@ -59,10 +59,10 @@ async function apiCall<T>(
     
     // Merge with any headers from options (but our headers take priority)
     const finalHeaders = {
-      ...(options.headers as Record<string, string>),
-      ...headers,
-    };
-    
+  ...(options.headers as Record<string, string> || {}),
+  ...headers, // ensure Authorization & Content-Type are not overwritten
+};
+
     console.log('[API] Final headers being sent:', finalHeaders);
 
     const response = await fetch(url, {
