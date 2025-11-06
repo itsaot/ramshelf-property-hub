@@ -39,26 +39,23 @@ async function apiCall<T>(
     
     // Build headers object - CRITICAL: Must be a plain object, not HeadersInit
     const headers: Record<string, string> = {};
+
+     // Always attach token first if it exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('[API] ✅ Token attached to request header');
+    }
     
     // Add Content-Type for JSON if not FormData
     if (!(options.body instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
     }
     
-    // ALWAYS add Authorization header if token exists - BEFORE any other headers
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API] ✓ Token found and Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
-    } else if (!isPublicRoute) {
-      console.error('[API] ❌ CRITICAL: Protected route called without token!');
-      console.error('[API] ❌ localStorage contents:', localStorage);
-      return { error: 'Authentication required. Please log in again.' };
-    }
     
     // Merge with any headers from options (but our headers take priority)
     const finalHeaders = {
+      ...(options.headers as Record<string, string>),
       ...headers,
-      ...(options.headers as Record<string, string> || {}),
     };
     
     console.log('[API] Final headers being sent:', finalHeaders);
@@ -71,7 +68,7 @@ async function apiCall<T>(
 
     console.log(`[API] Response status: ${response.status}`);
 
-    let data;
+    
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
