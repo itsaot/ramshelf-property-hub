@@ -43,9 +43,13 @@ async function apiCall<T>(
 
      // Always attach token first if it exists
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API] ✅ Token attached to request header');
-    }
+  headers['Authorization'] = `Bearer ${token}`;
+  console.log('[API] ✅ Token attached to request header');
+} else if (!isPublicRoute) {
+  console.warn('[API] ⚠️ No token found for protected route');
+  console.warn('[API] localStorage keys:', Object.keys(localStorage));
+}
+
     
     // Add Content-Type for JSON if not FormData
     if (!(options.body instanceof FormData)) {
