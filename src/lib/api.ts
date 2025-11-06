@@ -69,6 +69,7 @@ async function apiCall<T>(
       ...options,
       headers: finalHeaders,
       mode: 'cors',
+      credentials: 'include',
     });
 
     console.log(`[API] Response status: ${response.status}`);
@@ -209,7 +210,9 @@ export const authApi = {
 };
 
 // Rentals API
+// Rentals API
 export const rentalsApi = {
+  // Public routes
   getAll: (params?: { search?: string; minPrice?: number; maxPrice?: number }) => {
     const query = new URLSearchParams(params as any).toString();
     console.log('🏠 [Rentals] Fetching all rentals (public)', params);
@@ -221,6 +224,7 @@ export const rentalsApi = {
     return apiCall(`/rentals/${id}`);
   },
 
+  // Protected routes
   create: (rentalData: any) => {
     console.log('🏠 [Rentals] Creating new rental (protected)', rentalData);
     return apiCall('/rentals', {
@@ -244,6 +248,7 @@ export const rentalsApi = {
     });
   },
 };
+
 
 // Users API
 export const usersApi = {
