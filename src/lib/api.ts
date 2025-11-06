@@ -37,29 +37,35 @@ async function apiCall<T>(
       console.warn('⚠️ No authentication token found. Please log in again.');
     }
     
-    // Build headers - don't set Content-Type if body is FormData (browser will set it with boundary)
-    const headers: HeadersInit = {
-      ...options.headers,
-    };
+    // Build headers object - CRITICAL: Must be a plain object, not HeadersInit
+    const headers: Record<string, string> = {};
     
     // Add Content-Type for JSON if not FormData
     if (!(options.body instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
     }
     
-    // ALWAYS add Authorization header if token exists
+    // ALWAYS add Authorization header if token exists - BEFORE any other headers
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API] ✓ Authorization header attached:', `Bearer ${token.substring(0, 20)}...`);
+      console.log('[API] ✓ Token found and Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
     } else if (!isPublicRoute) {
       console.error('[API] ❌ CRITICAL: Protected route called without token!');
       console.error('[API] ❌ localStorage contents:', localStorage);
       return { error: 'Authentication required. Please log in again.' };
     }
+    
+    // Merge with any headers from options (but our headers take priority)
+    const finalHeaders = {
+      ...headers,
+      ...(options.headers as Record<string, string> || {}),
+    };
+    
+    console.log('[API] Final headers being sent:', finalHeaders);
 
     const response = await fetch(url, {
       ...options,
-      headers,
+      headers: finalHeaders,
       mode: 'cors',
     });
 
