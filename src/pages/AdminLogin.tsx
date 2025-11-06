@@ -34,7 +34,11 @@ const AdminLogin = () => {
         description: response.error,
       });
     } else if (response.data) {
+      console.log('[ADMIN LOGIN PAGE] Login response:', response.data);
       const { token, user } = response.data as any;
+      
+      console.log('[ADMIN LOGIN PAGE] Extracted token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+      console.log('[ADMIN LOGIN PAGE] Extracted user:', user);
       
       if (user.role !== 'admin') {
         toast({
@@ -48,6 +52,10 @@ const AdminLogin = () => {
 
       setAuthToken(token);
       setUser(user);
+      
+      // Verify token was saved
+      const savedToken = localStorage.getItem('authToken');
+      console.log('[ADMIN LOGIN PAGE] Verified saved token:', savedToken ? '✅ Token saved' : '❌ Token NOT saved');
       
       toast({
         title: "Welcome, Admin",

@@ -6,8 +6,13 @@ export interface ApiResponse<T = any> {
   message?: string;
 }
 
-// Helper function to get auth token
-const getAuthToken = () => localStorage.getItem('authToken');
+// Helper function to get auth token with debugging
+const getAuthToken = () => {
+  const token = localStorage.getItem('authToken');
+  console.log('[AUTH] Token check:', token ? `Token exists (${token.substring(0, 20)}...)` : '❌ NO TOKEN FOUND');
+  console.log('[AUTH] localStorage keys:', Object.keys(localStorage));
+  return token;
+};
 
 
 // Helper function to make API calls with enhanced logging

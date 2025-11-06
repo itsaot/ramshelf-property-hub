@@ -36,9 +36,18 @@ const Login = () => {
         description: response.error,
       });
     } else if (response.data) {
+      console.log('[LOGIN PAGE] Login response:', response.data);
       const { token, user } = response.data as any;
+      
+      console.log('[LOGIN PAGE] Extracted token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+      console.log('[LOGIN PAGE] Extracted user:', user);
+      
       setAuthToken(token);
       setUser(user);
+      
+      // Verify token was saved
+      const savedToken = localStorage.getItem('authToken');
+      console.log('[LOGIN PAGE] Verified saved token:', savedToken ? '✅ Token saved' : '❌ Token NOT saved');
       
       toast({
         title: "Welcome back!",

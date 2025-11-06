@@ -67,6 +67,10 @@ export const authService = {
       // Save token locally
       if (data.token) {
         localStorage.setItem('authToken', data.token);
+        console.log('✅ [LOGIN] Token saved to localStorage:', data.token.substring(0, 20) + '...');
+        console.log('[LOGIN] Full response:', data);
+      } else {
+        console.error('❌ [LOGIN] No token in response!', data);
       }
 
       return { data };
@@ -92,6 +96,10 @@ export const authService = {
       // Save token locally
       if (data.token) {
         localStorage.setItem('authToken', data.token);
+        console.log('✅ [ADMIN LOGIN] Token saved to localStorage:', data.token.substring(0, 20) + '...');
+        console.log('[ADMIN LOGIN] Full response:', data);
+      } else {
+        console.error('❌ [ADMIN LOGIN] No token in response!', data);
       }
 
       return { data };
