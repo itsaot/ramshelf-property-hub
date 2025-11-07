@@ -24,44 +24,39 @@ async function apiCall<T>(
   console.log(`[API] ${options.method || 'GET'} ${url}`);
   
   try {
-    let data: any = null; 
     const token = getAuthToken();
     
     // Define public routes that don't need auth
     const isPublicRoute = endpoint.includes('/auth/login') || 
                           endpoint.includes('/auth/signup') ||
-                          (endpoint.includes('/rentals') && options.method === 'GET') ||
-                          endpoint.match(/^\/rentals\/[^\/]+$/) && options.method === 'GET';
+                          (endpoint.includes('/api/rentals') && options.method === 'GET') ||
+                          endpoint.match(/^\/api\/rentals\/[^\/]+$/) && options.method === 'GET';
     
-    // Only warn if it's a protected route and no token
-    if (!isPublicRoute && !token) {
-      console.warn('⚠️ No authentication token found. Please log in again.');
-    }
-    
-    // Build headers object - CRITICAL: Must be a plain object, not HeadersInit
+    // Build headers object as plain Record
     const headers: Record<string, string> = {};
-
-     // Always attach token first if it exists
+    
+    // CRITICAL: Always attach token for ALL requests if it exists
     if (token) {
-  headers['Authorization'] = `Bearer ${token}`;
-  console.log('[API] ✅ Token attached to request header');
-} else if (!isPublicRoute) {
-  console.warn('[API] ⚠️ No token found for protected route');
-  console.warn('[API] localStorage keys:', Object.keys(localStorage));
-}
-
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('[API] 🔐 Token attached: Yes');
+      console.log('[API] Token preview:', token.substring(0, 30) + '...');
+    } else {
+      console.log('[API] 🔐 Token attached: No');
+      if (!isPublicRoute) {
+        console.error('[API] ⚠️ Protected route called without token!');
+      }
+    }
     
     // Add Content-Type for JSON if not FormData
     if (!(options.body instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
     }
     
-    
-    // Merge with any headers from options (but our headers take priority)
+    // Merge headers - our auth headers take priority
     const finalHeaders = {
-  ...(options.headers as Record<string, string> || {}),
-  ...headers, // ensure Authorization & Content-Type are not overwritten
-};
+      ...(options.headers as Record<string, string> || {}),
+      ...headers,
+    };
 
     console.log('[API] Final headers being sent:', finalHeaders);
 
@@ -73,9 +68,10 @@ async function apiCall<T>(
     });
 
     console.log(`[API] Response status: ${response.status}`);
-
     
     const contentType = response.headers.get('content-type');
+    let data: any = null;
+    
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
     } else {
@@ -90,9 +86,7 @@ async function apiCall<T>(
       // Special handling for 401 errors
       if (response.status === 401) {
         console.error('[API] 401 Unauthorized - Token may be invalid or expired');
-        if (!token) {
-          return { error: 'Authentication required. Please log in to continue.' };
-        }
+        console.error('[API] Token was attached:', !!token);
       }
       
       return { error: data.message || data.error || 'An error occurred' };
