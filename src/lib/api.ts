@@ -166,7 +166,7 @@ export const authApi = {
 
   adminLogin: async (credentials: { emailOrPhone: string; password: string }) => {
     console.log('🔐 [Auth] Attempting admin login...');
-    const result = await apiCall('/auth/admin/login', {
+    const result = await apiCall('/admin/login', {
       method: 'POST',
       body: JSON.stringify({
         emailOrPhone: credentials.emailOrPhone,
