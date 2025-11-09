@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://property-api-5h7y.onrender.com/api';
+const API_BASE_URL = 'https://property-api-5h7y.onrender.com';
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -27,8 +27,8 @@ async function apiCall<T>(
     const token = getAuthToken();
     
     // Define public routes that don't need auth
-    const isPublicRoute = endpoint.includes('/auth/login') || 
-                          endpoint.includes('/auth/signup') ||
+    const isPublicRoute = endpoint.includes('/api/auth/login') || 
+                          endpoint.includes('/api/auth/signup') ||
                           (endpoint.includes('/api/rentals') && options.method === 'GET') ||
                           endpoint.match(/^\/api\/rentals\/[^\/]+$/) && options.method === 'GET';
     
@@ -122,7 +122,7 @@ export const authApi = {
 
     try {
       const token = getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
@@ -148,7 +148,7 @@ export const authApi = {
 
   login: async (credentials: { emailOrPhone: string; password: string }) => {
     console.log('🔐 [Auth] Attempting login...');
-    const result = await apiCall('/auth/login', {
+    const result = await apiCall('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         emailOrPhone: credentials.emailOrPhone,
@@ -166,7 +166,7 @@ export const authApi = {
 
   adminLogin: async (credentials: { emailOrPhone: string; password: string }) => {
     console.log('🔐 [Auth] Attempting admin login...');
-    const result = await apiCall('/admin/login', {
+    const result = await apiCall('/api/admin/login', {
       method: 'POST',
       body: JSON.stringify({
         emailOrPhone: credentials.emailOrPhone,
@@ -182,22 +182,22 @@ export const authApi = {
     return result;
   },
 
-  getMe: () => apiCall('/auth/me'),
+  getMe: () => apiCall('/api/auth/me'),
 
   forgotPassword: (email: string) =>
-    apiCall('/auth/forgot-password', {
+    apiCall('/api/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
     }),
 
   resetPassword: (token: string, password: string) =>
-    apiCall(`/auth/reset-password/${token}`, {
+    apiCall(`/api/auth/reset-password/${token}`, {
       method: 'POST',
       body: JSON.stringify({ password }),
     }),
 
   setup: (setupData: any) =>
-    apiCall('/auth/setup', {
+    apiCall('/api/auth/setup', {
       method: 'PUT',
       body: JSON.stringify(setupData),
     }),
@@ -246,24 +246,24 @@ export const rentalsApi = {
 
 // Users API
 export const usersApi = {
-  getById: (id: string) => apiCall(`/users/${id}`),
+  getById: (id: string) => apiCall(`/api/users/${id}`),
 
   update: (id: string, userData: any) =>
-    apiCall(`/users/${id}`, {
+    apiCall(`/api/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     }),
 
-  search: (query: string) => apiCall(`/users/search?q=${query}`),
+  search: (query: string) => apiCall(`/api/users/search?q=${query}`),
 
   updateSettings: (id: string, settings: any) =>
-    apiCall(`/users/${id}/settings`, {
+    apiCall(`/api/users/${id}/settings`, {
       method: 'PUT',
       body: JSON.stringify(settings),
     }),
 
   uploadProfile: (formData: FormData) =>
-    apiCall('/users/upload-profile', {
+    apiCall('/api/users/upload-profile', {
       method: 'POST',
       body: formData as any,
       headers: {} as any, // Let browser set content-type for FormData
@@ -272,19 +272,19 @@ export const usersApi = {
 
 // Admin API
 export const adminApi = {
-  getAnalytics: () => apiCall('/admin/analytics'),
+  getAnalytics: () => apiCall('/api/admin/analytics'),
 
-  getFlags: () => apiCall('/admin/flags'),
+  getFlags: () => apiCall('/api/admin/flags'),
   
   // User management
   getAllUsers: () => {
     console.log('👥 [Admin] Fetching all users');
-    return apiCall('/admin/users');
+    return apiCall('/api/admin/users');
   },
 
   createUser: (userData: any) => {
     console.log('👥 [Admin] Creating user', userData);
-    return apiCall('/admin/users', {
+    return apiCall('/api/admin/users', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -292,7 +292,7 @@ export const adminApi = {
 
   updateUser: (id: string, userData: any) => {
     console.log(`👥 [Admin] Updating user ${id}`);
-    return apiCall(`/admin/users/${id}`, {
+    return apiCall(`/api/admin/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(userData),
     });
@@ -300,7 +300,7 @@ export const adminApi = {
 
   deleteUser: (id: string) => {
     console.log(`👥 [Admin] Deleting user ${id}`);
-    return apiCall(`/admin/users/${id}`, {
+    return apiCall(`/api/admin/users/${id}`, {
       method: 'DELETE',
     });
   },
@@ -308,79 +308,79 @@ export const adminApi = {
   // Property management
   getAllRentals: () => {
     console.log('🏠 [Admin] Fetching all rentals');
-    return apiCall('/admin/rentals');
+    return apiCall('/api/admin/rentals');
   },
 
   deleteRental: (id: string) => {
     console.log(`🏠 [Admin] Deleting rental ${id}`);
-    return apiCall(`/admin/rentals/${id}`, {
+    return apiCall(`/api/admin/rentals/${id}`, {
       method: 'DELETE',
     });
   },
 
   deleteContent: (type: string, id: string) =>
-    apiCall(`/admin/content/${type}/${id}`, {
+    apiCall(`/api/admin/content/${type}/${id}`, {
       method: 'DELETE',
     }),
 };
 
 // Reviews API
 export const reviewsApi = {
-  getByUserId: (userId: string) => apiCall(`/reviews/user/${userId}`),
+  getByUserId: (userId: string) => apiCall(`/api/reviews/user/${userId}`),
 
   create: (userId: string, reviewData: any) =>
-    apiCall(`/reviews/${userId}`, {
+    apiCall(`/api/reviews/${userId}`, {
       method: 'POST',
       body: JSON.stringify(reviewData),
     }),
 
   update: (id: string, reviewData: any) =>
-    apiCall(`/reviews/${id}`, {
+    apiCall(`/api/reviews/${id}`, {
       method: 'PUT',
       body: JSON.stringify(reviewData),
     }),
 
   delete: (id: string) =>
-    apiCall(`/reviews/${id}`, {
+    apiCall(`/api/reviews/${id}`, {
       method: 'DELETE',
     }),
 };
 
 // Messages API
 export const messagesApi = {
-  getConversations: () => apiCall('/messages/conversations'),
+  getConversations: () => apiCall('/api/messages/conversations'),
 
   getMessages: (conversationId: string) => 
-    apiCall(`/messages/${conversationId}`),
+    apiCall(`/api/messages/${conversationId}`),
 
   sendMessage: (conversationId: string, message: string) =>
-    apiCall(`/messages/${conversationId}`, {
+    apiCall(`/api/messages/${conversationId}`, {
       method: 'POST',
       body: JSON.stringify({ message }),
     }),
 
   startConversation: (userId: string) =>
-    apiCall(`/messages/start/${userId}`, {
+    apiCall(`/api/messages/start/${userId}`, {
       method: 'POST',
     }),
 };
 
 // Notifications API
 export const notificationsApi = {
-  getAll: () => apiCall('/notifications'),
+  getAll: () => apiCall('/api/notifications'),
 
   markAsRead: (id: string) =>
-    apiCall(`/notifications/${id}/read`, {
+    apiCall(`/api/notifications/${id}/read`, {
       method: 'PATCH',
     }),
 
   delete: (id: string) =>
-    apiCall(`/notifications/${id}`, {
+    apiCall(`/api/notifications/${id}`, {
       method: 'DELETE',
     }),
 
   create: (notificationData: any) =>
-    apiCall('/notifications/create', {
+    apiCall('/api/notifications/create', {
       method: 'POST',
       body: JSON.stringify(notificationData),
     }),
@@ -389,17 +389,17 @@ export const notificationsApi = {
 // Payments API
 export const paymentsApi = {
   createPayment: (paymentData: any) =>
-    apiCall('/payments', {
+    apiCall('/api/payments', {
       method: 'POST',
       body: JSON.stringify(paymentData),
     }),
 
   initializePaystack: (amount: number, email: string, reference: string) =>
-    apiCall('/payments/paystack/initialize', {
+    apiCall('/api/payments/paystack/initialize', {
       method: 'POST',
       body: JSON.stringify({ amount, email, reference }),
     }),
 
   verifyPaystack: (reference: string) =>
-    apiCall(`/payments/paystack/verify/${reference}`),
+    apiCall(`/api/payments/paystack/verify/${reference}`),
 };
