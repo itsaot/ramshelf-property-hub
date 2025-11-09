@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://property-api-5h7y.onrender.com';
+const API_BASE_URL = 'https://property-api-5h7y.onrender.com/api';
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -81,7 +81,7 @@ export const authService = {
 
   adminLogin: async (credentials: { email: string; password: string }): Promise<ApiResponse> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/admin/login`, {
+      const response = await fetch(`${API_BASE_URL}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
