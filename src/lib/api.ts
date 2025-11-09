@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://property-api-5h7y.onrender.com';
+const API_BASE_URL = 'https://property-api-5h7y.onrender.com/api';
 
 export interface ApiResponse<T = any> {
   data?: T;
