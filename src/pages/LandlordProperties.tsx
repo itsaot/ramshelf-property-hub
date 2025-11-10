@@ -20,12 +20,12 @@ const LandlordProperties = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    address: "",
     price: "",
-    images: [] as string[],
+    location: "",
+    bedrooms: "",
+    bathrooms: "",
+    type: "",
   });
-
-  const [imageInput, setImageInput] = useState("");
 
   useEffect(() => {
     fetchProperties();
@@ -52,19 +52,12 @@ const LandlordProperties = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Build the exact payload structure required by the API
     const propertyData = {
-      title: formData.title,
-      description: formData.description,
-      address: formData.address,
-      price: parseFloat(formData.price), // Ensure it's a number
-      images: formData.images, // Array of strings
+      ...formData,
+      price: parseFloat(formData.price),
+      bedrooms: parseInt(formData.bedrooms),
+      bathrooms: parseInt(formData.bathrooms),
     };
-
-    // Log the request body for debugging
-    console.log("🏠 [Property Form] Submitting property:", JSON.stringify(propertyData, null, 2));
-    console.log("🏠 [Property Form] Price type:", typeof propertyData.price);
-    console.log("🏠 [Property Form] Images type:", Array.isArray(propertyData.images) ? "array" : typeof propertyData.images);
 
     const response = editingProperty
       ? await rentalsApi.update(editingProperty.id, propertyData)
@@ -92,23 +85,6 @@ const LandlordProperties = () => {
     setLoading(false);
   };
 
-  const handleAddImage = () => {
-    if (imageInput.trim()) {
-      setFormData({
-        ...formData,
-        images: [...formData.images, imageInput.trim()],
-      });
-      setImageInput("");
-    }
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, i) => i !== index),
-    });
-  };
-
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this property?")) return;
 
@@ -134,9 +110,11 @@ const LandlordProperties = () => {
     setFormData({
       title: property.title,
       description: property.description,
-      address: property.address || property.location || "",
       price: property.price.toString(),
-      images: property.images || [],
+      location: property.location,
+      bedrooms: property.bedrooms.toString(),
+      bathrooms: property.bathrooms.toString(),
+      type: property.type || "",
     });
     setDialogOpen(true);
   };
@@ -146,11 +124,12 @@ const LandlordProperties = () => {
     setFormData({
       title: "",
       description: "",
-      address: "",
       price: "",
-      images: [],
+      location: "",
+      bedrooms: "",
+      bathrooms: "",
+      type: "",
     });
-    setImageInput("");
   };
 
   return (
@@ -181,105 +160,88 @@ const LandlordProperties = () => {
                 </DialogTitle>
               </DialogHeader>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Property Title *</Label>
+                  <Label htmlFor="title">Property Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Modern 2BR Apartment in City Center"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
+                  <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe your property, amenities, and unique features..."
-                    rows={5}
+                    rows={4}
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="address">Full Address *</Label>
-                  <Input
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street, City, Province, Postal Code"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price">Monthly Rent (R) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="e.g., 12000"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Property Images</Label>
-                  <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Monthly Rent (R)</Label>
                     <Input
-                      value={imageInput}
-                      onChange={(e) => setImageInput(e.target.value)}
-                      placeholder="Enter image URL"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddImage();
-                        }
-                      }}
+                      id="price"
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      required
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddImage}
-                    >
-                      Add
-                    </Button>
                   </div>
-                  {formData.images.length > 0 && (
-                    <div className="mt-2 space-y-2">
-                      {formData.images.map((url, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 p-2 bg-muted rounded-md"
-                        >
-                          <span className="text-sm flex-1 truncate">{url}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveImage(index)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Add image URLs one at a time. Press Enter or click Add.
-                  </p>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Property Type</Label>
+                    <Input
+                      id="type"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      placeholder="e.g., Apartment, House"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bedrooms">Bedrooms</Label>
+                    <Input
+                      id="bedrooms"
+                      type="number"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bathrooms">Bathrooms</Label>
+                    <Input
+                      id="bathrooms"
+                      type="number"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={loading} className="flex-1">
-                    {loading ? "Saving..." : editingProperty ? "Update Property" : "List Property"}
+                    {loading ? "Saving..." : editingProperty ? "Update Property" : "Add Property"}
                   </Button>
                   <Button
                     type="button"
@@ -319,18 +281,19 @@ const LandlordProperties = () => {
                 <CardContent className="space-y-3">
                   <div className="flex items-center text-muted-foreground text-sm">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span className="line-clamp-1">{property.address || property.location}</span>
+                    <span className="line-clamp-1">{property.location}</span>
                   </div>
 
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {property.description}
-                  </p>
-
-                  {property.images && property.images.length > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {property.images.length} image{property.images.length !== 1 ? 's' : ''}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <BedDouble className="h-4 w-4 mr-1" />
+                      <span>{property.bedrooms}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Bath className="h-4 w-4 mr-1" />
+                      <span>{property.bathrooms}</span>
+                    </div>
+                  </div>
 
                   <div className="text-2xl font-bold text-primary">
                     R {property.price.toLocaleString('en-ZA')}<span className="text-sm font-normal">/mo</span>
