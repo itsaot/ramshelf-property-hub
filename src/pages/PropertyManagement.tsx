@@ -21,6 +21,8 @@ const PropertyManagement = () => {
     setLoading(true);
     const response = await adminApi.getAllRentals();
 
+    console.log("📦 Rentals received:", response.data);
+
     if (response.error) {
       toast({
         variant: "destructive",
@@ -28,7 +30,8 @@ const PropertyManagement = () => {
         description: response.error,
       });
     } else {
-      setProperties((response.data as any)?.rentals || []);
+      // BACKEND RETURNS AN ARRAY, NOT { rentals: [] }
+      setProperties((response.data as any) || []);
     }
     setLoading(false);
   };
@@ -86,7 +89,7 @@ const PropertyManagement = () => {
         ) : (
           <div className="grid gap-4">
             {filteredProperties.map((property) => (
-              <Card key={property.id}>
+              <Card key={property._id}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -101,7 +104,7 @@ const PropertyManagement = () => {
                     <Button
                       variant="destructive"
                       size="icon"
-                      onClick={() => handleDeleteProperty(property.id)}
+                      onClick={() => handleDeleteProperty(property._id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
