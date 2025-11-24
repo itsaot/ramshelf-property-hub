@@ -42,7 +42,8 @@ const LandlordProperties = () => {
         description: response.error,
       });
     } else {
-      setProperties((response.data as any)?.rentals || []);
+      // Backend returns array directly
+      setProperties((response.data as any) || []);
     }
     
     setLoading(false);
@@ -67,7 +68,7 @@ const LandlordProperties = () => {
     console.log("🏠 [Property Form] Images type:", Array.isArray(propertyData.images) ? "array" : typeof propertyData.images);
 
     const response = editingProperty
-      ? await rentalsApi.update(editingProperty.id, propertyData)
+      ? await rentalsApi.update(editingProperty._id, propertyData)
       : await rentalsApi.create(propertyData);
 
     if (response.error) {
@@ -312,7 +313,7 @@ const LandlordProperties = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
-              <Card key={property.id} className="hover-lift">
+              <Card key={property._id} className="hover-lift">
                 <CardHeader>
                   <CardTitle className="line-clamp-1">{property.title}</CardTitle>
                 </CardHeader>
@@ -349,7 +350,7 @@ const LandlordProperties = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(property.id)}
+                    onClick={() => handleDelete(property._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
