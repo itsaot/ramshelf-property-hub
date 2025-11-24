@@ -29,7 +29,8 @@ const Index = () => {
         description: response.error,
       });
     } else {
-      setProperties((response.data as any)?.rentals || []);
+      // Backend returns array directly
+      setProperties((response.data as any) || []);
     }
     setLoading(false);
   };
@@ -131,10 +132,10 @@ const Index = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.slice(0, 6).map((property) => (
                 <PropertyCard
-                  key={property.id}
-                  id={property.id}
+                  key={property._id}
+                  id={property._id}
                   title={property.title}
-                  location={property.location}
+                  location={property.address || property.location}
                   price={property.price}
                   bedrooms={property.bedrooms}
                   bathrooms={property.bathrooms}
