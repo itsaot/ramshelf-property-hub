@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, Calendar, CreditCard } from "lucide-react";
+import { ChevronLeft, Calendar, CreditCard, MapPin } from "lucide-react";
 import { rentalsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const Payment = () => {
   const { id } = useParams();
@@ -17,6 +19,8 @@ const Payment = () => {
   const [searchParams] = useSearchParams();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
   
   const [bookingData, setBookingData] = useState({
     checkIn: searchParams.get("checkIn") || "",
@@ -34,6 +38,33 @@ const Payment = () => {
   useEffect(() => {
     fetchProperty();
   }, [id]);
+
+  useEffect(() => {
+    if (!property || !mapContainer.current || map.current) return;
+
+    // Initialize map with Mapbox token
+    mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTRheTZ2bzMwNmRpMmpzYzhnc2dlcjNwIn0.YW1iZ0RteWJjdE5CbFZ0MU9B';
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [-0.1276, 51.5074], // Default to London, will be updated
+      zoom: 14,
+    });
+
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    // Add marker for property location
+    const marker = new mapboxgl.Marker({ color: '#2563eb' })
+      .setLngLat([-0.1276, 51.5074])
+      .setPopup(new mapboxgl.Popup().setHTML(`<h3>${property.title}</h3><p>${property.address}</p>`))
+      .addTo(map.current);
+
+    return () => {
+      map.current?.remove();
+    };
+  }, [property]);
 
   const fetchProperty = async () => {
     if (!id) return;
@@ -65,6 +96,34 @@ const Payment = () => {
   const calculateTotal = () => {
     const nights = calculateNights();
     return nights * (property?.price || 0);
+  };
+
+  const formatCardNumber = (value: string) => {
+    const cleaned = value.replace(/\s/g, '');
+    const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
+    return formatted;
+  };
+
+  const formatExpiryDate = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length >= 2) {
+      return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
+    }
+    return cleaned;
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, '');
+    if (/^\d*$/.test(value) && value.length <= 16) {
+      setPaymentData({ ...paymentData, cardNumber: formatCardNumber(value) });
+    }
+  };
+
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 4) {
+      setPaymentData({ ...paymentData, expiryDate: formatExpiryDate(value) });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -231,9 +290,7 @@ const Payment = () => {
                           type="text"
                           placeholder="1234 5678 9012 3456"
                           value={paymentData.cardNumber}
-                          onChange={(e) =>
-                            setPaymentData({ ...paymentData, cardNumber: e.target.value })
-                          }
+                          onChange={handleCardNumberChange}
                           maxLength={19}
                           required
                         />
@@ -246,9 +303,7 @@ const Payment = () => {
                             type="text"
                             placeholder="MM/YY"
                             value={paymentData.expiryDate}
-                            onChange={(e) =>
-                              setPaymentData({ ...paymentData, expiryDate: e.target.value })
-                            }
+                            onChange={handleExpiryDateChange}
                             maxLength={5}
                             required
                           />
@@ -295,7 +350,18 @@ const Payment = () => {
                 )}
                 <div>
                   <h3 className="font-semibold text-lg">{property.title}</h3>
-                  <p className="text-sm text-muted-foreground">{property.address || property.location}</p>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {property.address || property.location}
+                  </p>
+                </div>
+
+                <Separator />
+
+                {/* Map */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Location</h4>
+                  <div ref={mapContainer} className="w-full h-48 rounded-lg" />
                 </div>
 
                 <Separator />
