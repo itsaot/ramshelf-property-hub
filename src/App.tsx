@@ -13,6 +13,7 @@ import LandlordProperties from "./pages/LandlordProperties";
 import UserManagement from "./pages/UserManagement";
 import PropertyManagement from "./pages/PropertyManagement";
 import PropertyDetails from "./pages/PropertyDetails";
+import Payment from "./pages/Payment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/signup" element={<Signup />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/property/:id" element={<PropertyDetails />} />
+          <Route path="/payment/:id" element={<Payment />} />
           
           <Route
             path="/profile"
