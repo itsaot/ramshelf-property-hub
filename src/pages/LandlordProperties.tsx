@@ -218,7 +218,7 @@ const LandlordProperties = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="price">Monthly Rent (R) *</Label>
+                  <Label htmlFor="price">Daily Cost (R) *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -334,7 +334,7 @@ const LandlordProperties = () => {
                   )}
 
                   <div className="text-2xl font-bold text-primary">
-                    R {property.price.toLocaleString('en-ZA')}<span className="text-sm font-normal">/mo</span>
+                    R {property.price.toLocaleString('en-ZA')}<span className="text-sm font-normal">/Day</span>
                   </div>
                 </CardContent>
                 <CardFooter className="gap-2">
