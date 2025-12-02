@@ -194,7 +194,7 @@ const PropertyDetails = () => {
               <CardHeader>
                 <CardTitle className="text-3xl text-primary">
                   R {property.price.toLocaleString('en-ZA')}
-                  <span className="text-base font-normal text-muted-foreground">/month</span>
+                  <span className="text-base font-normal text-muted-foreground">/night</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
