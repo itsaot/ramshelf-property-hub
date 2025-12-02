@@ -20,49 +20,41 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="border-b bg-background sticky top-0 z-50 shadow-sm">
+    <nav className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 smooth-transition">
           <Building2 className="h-6 w-6 text-primary" />
-          <span className="text-2xl font-bold text-primary">Ramshelf</span>
+          <span className="text-xl font-serif font-bold text-foreground tracking-wide">Ramshelf</span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        {/* Center Navigation */}
+        <div className="hidden md:flex items-center gap-8">
+          <Link to="/" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+            Home
+          </Link>
+          {isLandlord() && (
+            <Link to="/landlord/properties" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+              Properties
+            </Link>
+          )}
+          {isAdmin() && (
+            <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+              Dashboard
+            </Link>
+          )}
+        </div>
+
+        {/* Right Side Icons/Buttons */}
+        <div className="flex items-center gap-3">
           {authenticated ? (
             <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <Home className="h-4 w-4 mr-2" />
-                  Home
-                </Link>
-              </Button>
-
-              {isAdmin() && (
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/admin">
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </Link>
-                </Button>
-              )}
-
-              {isLandlord() && (
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/landlord/properties">
-                    <Building2 className="h-4 w-4 mr-2" />
-                    My Properties
-                  </Link>
-                </Button>
-              )}
-
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="icon" asChild className="hidden md:flex">
                 <Link to="/profile">
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
+                  <User className="h-5 w-5" />
                 </Link>
               </Button>
-
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden md:flex">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
