@@ -98,7 +98,7 @@ const PropertyManagement = () => {
                         {property.location}
                       </p>
                       <p className="text-sm font-semibold mt-2">
-                        R{property.price?.toLocaleString()}/month
+                        R{property.price?.toLocaleString()}/night
                       </p>
                     </div>
                     <Button
