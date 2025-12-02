@@ -47,10 +47,7 @@ const PropertyDetails = () => {
   };
 
   const handleBooking = () => {
-    toast({
-      title: "Booking Request",
-      description: "Booking functionality will be available soon!",
-    });
+    navigate(`/payment/${id}`);
   };
 
   const handleContact = () => {
