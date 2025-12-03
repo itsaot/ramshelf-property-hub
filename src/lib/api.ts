@@ -190,10 +190,10 @@ export const authApi = {
       body: JSON.stringify({ email }),
     }),
 
-  resetPassword: (token: string, password: string) =>
+  resetPassword: (token: string, newPassword: string) =>
     apiCall(`/api/auth/reset-password/${token}`, {
       method: 'POST',
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ newPassword }),
     }),
 
   setup: (setupData: any) =>
