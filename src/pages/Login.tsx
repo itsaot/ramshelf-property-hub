@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
 import { authService } from "@/lib/authService";
@@ -17,7 +17,6 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "tenant" as "tenant" | "landlord",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,29 +102,6 @@ const Login = () => {
                   }
                   required
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>I am a</Label>
-                <RadioGroup
-                  value={formData.role}
-                  onValueChange={(value: "tenant" | "landlord") =>
-                    setFormData({ ...formData, role: value })
-                  }
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="tenant" id="tenant" />
-                    <Label htmlFor="tenant" className="cursor-pointer">
-                      Tenant
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="landlord" id="landlord" />
-                    <Label htmlFor="landlord" className="cursor-pointer">
-                      Landlord
-                    </Label>
-                  </div>
-                </RadioGroup>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

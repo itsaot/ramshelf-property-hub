@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Edit2, Trash2, MapPin, BedDouble, Bath, Building2 } from "lucide-react";
 import { rentalsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { getUser } from "@/lib/auth";
 
 const LandlordProperties = () => {
   const { toast } = useToast();
@@ -35,6 +36,19 @@ const LandlordProperties = () => {
   });
 
   const [imageInput, setImageInput] = useState("");
+
+  const currentUser = getUser();
+  const currentUserId = (currentUser as any)?._id || (currentUser as any)?.id;
+
+  const myProperties = properties.filter((property) => {
+    const landlord = (property as any).landlord;
+    const landlordId =
+      (landlord && (landlord._id || landlord.id)) || landlord;
+
+    if (!currentUserId || !landlordId) return false;
+
+    return String(landlordId) === String(currentUserId);
+  });
 
   useEffect(() => {
     fetchProperties();
