@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit2, Trash2, MapPin, BedDouble, Bath, Building2 } from "lucide-react";
@@ -23,6 +24,14 @@ const LandlordProperties = () => {
     address: "",
     price: "",
     images: [] as string[],
+    mapUrl: "",
+    bedrooms: "",
+    bathrooms: "",
+    garageSpaces: "",
+    parkingSpaces: "",
+    furnished: false,
+    petFriendly: false,
+    available: true,
   });
 
   const [imageInput, setImageInput] = useState("");
@@ -60,6 +69,14 @@ const LandlordProperties = () => {
       address: formData.address,
       price: parseFloat(formData.price), // Ensure it's a number
       images: formData.images, // Array of strings
+      mapUrl: formData.mapUrl.trim() || undefined,
+      bedrooms: formData.bedrooms ? parseInt(formData.bedrooms, 10) : undefined,
+      bathrooms: formData.bathrooms ? parseInt(formData.bathrooms, 10) : undefined,
+      garageSpaces: formData.garageSpaces ? parseInt(formData.garageSpaces, 10) : undefined,
+      parkingSpaces: formData.parkingSpaces ? parseInt(formData.parkingSpaces, 10) : undefined,
+      furnished: formData.furnished,
+      petFriendly: formData.petFriendly,
+      available: formData.available,
     };
 
     // Log the request body for debugging
@@ -136,8 +153,16 @@ const LandlordProperties = () => {
       title: property.title,
       description: property.description,
       address: property.address || property.location || "",
-      price: property.price.toString(),
+      price: property.price?.toString() || "",
       images: property.images || [],
+      mapUrl: property.mapUrl || "",
+      bedrooms: property.bedrooms?.toString() || "",
+      bathrooms: property.bathrooms?.toString() || "",
+      garageSpaces: property.garageSpaces?.toString() || "",
+      parkingSpaces: property.parkingSpaces?.toString() || "",
+      furnished: Boolean(property.furnished),
+      petFriendly: Boolean(property.petFriendly),
+      available: property.available !== false,
     });
     setDialogOpen(true);
   };
@@ -150,6 +175,14 @@ const LandlordProperties = () => {
       address: "",
       price: "",
       images: [],
+      mapUrl: "",
+      bedrooms: "",
+      bathrooms: "",
+      garageSpaces: "",
+      parkingSpaces: "",
+      furnished: false,
+      petFriendly: false,
+      available: true,
     });
     setImageInput("");
   };
@@ -229,6 +262,99 @@ const LandlordProperties = () => {
                     placeholder="e.g., 12000"
                     required
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bedrooms">Bedrooms</Label>
+                    <Input
+                      id="bedrooms"
+                      type="number"
+                      min="0"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                      placeholder="e.g., 2"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bathrooms">Bathrooms</Label>
+                    <Input
+                      id="bathrooms"
+                      type="number"
+                      min="0"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="garageSpaces">Garage Spaces</Label>
+                    <Input
+                      id="garageSpaces"
+                      type="number"
+                      min="0"
+                      value={formData.garageSpaces}
+                      onChange={(e) => setFormData({ ...formData, garageSpaces: e.target.value })}
+                      placeholder="e.g., 1"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="parkingSpaces">Parking Spaces</Label>
+                    <Input
+                      id="parkingSpaces"
+                      type="number"
+                      min="0"
+                      value={formData.parkingSpaces}
+                      onChange={(e) => setFormData({ ...formData, parkingSpaces: e.target.value })}
+                      placeholder="e.g., 2"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mapUrl">Map URL (optional)</Label>
+                  <Input
+                    id="mapUrl"
+                    value={formData.mapUrl}
+                    onChange={(e) => setFormData({ ...formData, mapUrl: e.target.value })}
+                    placeholder="Paste a Google Maps share link"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label htmlFor="furnished">Furnished</Label>
+                      <p className="text-xs text-muted-foreground">Is this property fully or partly furnished?</p>
+                    </div>
+                    <Switch
+                      id="furnished"
+                      checked={formData.furnished}
+                      onCheckedChange={(checked) => setFormData({ ...formData, furnished: checked })}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label htmlFor="petFriendly">Pet friendly</Label>
+                      <p className="text-xs text-muted-foreground">Are pets allowed?</p>
+                    </div>
+                    <Switch
+                      id="petFriendly"
+                      checked={formData.petFriendly}
+                      onCheckedChange={(checked) => setFormData({ ...formData, petFriendly: checked })}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label htmlFor="available">Available</Label>
+                      <p className="text-xs text-muted-foreground">Toggle if this listing is currently bookable.</p>
+                    </div>
+                    <Switch
+                      id="available"
+                      checked={formData.available}
+                      onCheckedChange={(checked) => setFormData({ ...formData, available: checked })}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
