@@ -18,6 +18,7 @@ const LandlordProperties = () => {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const [formData, setFormData] = useState({
     title: "",
@@ -472,8 +473,9 @@ const LandlordProperties = () => {
             </DialogContent>
           </Dialog>
         </div>
-
-        {loading ? (
+        </div>
+ 
+         {loading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading properties...</p>
           </div>
