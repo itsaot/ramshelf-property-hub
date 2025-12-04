@@ -56,7 +56,7 @@ const LandlordProperties = () => {
 
   const fetchProperties = async () => {
     setLoading(true);
-    const response = await rentalsApi.getAll();
+    const response = await rentalsApi.getMy();
     
     if (response.error) {
       toast({
@@ -69,6 +69,28 @@ const LandlordProperties = () => {
       setProperties((response.data as any) || []);
     }
     
+    setLoading(false);
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const trimmed = searchQuery.trim();
+    const response = trimmed
+      ? await rentalsApi.searchMy(trimmed)
+      : await rentalsApi.getMy();
+
+    if (response.error) {
+      toast({
+        variant: "destructive",
+        title: "Search failed",
+        description: response.error,
+      });
+    } else {
+      setProperties((response.data as any) || []);
+    }
+
     setLoading(false);
   };
 
@@ -206,22 +228,38 @@ const LandlordProperties = () => {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">My Properties</h1>
             <p className="text-muted-foreground">Manage your property listings</p>
           </div>
 
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Property
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Search in my rentals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button type="submit" variant="outline">
+                Search
               </Button>
-            </DialogTrigger>
+            </form>
+
+            <Dialog
+              open={dialogOpen}
+              onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) resetForm();
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Property
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
