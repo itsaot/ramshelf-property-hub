@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { SyntheticEvent } from "react";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ const LandlordProperties = () => {
     setLoading(false);
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = async (e: SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -243,8 +244,13 @@ const LandlordProperties = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button type="submit" variant="outline">
-                Search
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={handleSearch}
+              >
+                {loading ? "Searching..." : "Search"}
               </Button>
             </form>
 
