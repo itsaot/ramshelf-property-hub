@@ -439,7 +439,7 @@ const LandlordProperties = () => {
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading properties...</p>
           </div>
-        ) : properties.length === 0 ? (
+        ) : myProperties.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -451,13 +451,13 @@ const LandlordProperties = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <Card key={property._id} className="hover-lift">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+            {myProperties.map((property) => (
+              <Card key={property._id} className="hover-lift flex flex-col h-full">
                 <CardHeader>
                   <CardTitle className="line-clamp-1">{property.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 flex-1 flex flex-col">
                   <div className="flex items-center text-muted-foreground text-sm">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span className="line-clamp-1">{property.address || property.location}</span>
@@ -473,11 +473,12 @@ const LandlordProperties = () => {
                     </p>
                   )}
 
-                  <div className="text-2xl font-bold text-primary">
-                    R {property.price.toLocaleString('en-ZA')}<span className="text-sm font-normal">/Day</span>
+                  <div className="mt-auto text-2xl font-bold text-primary">
+                    R {property.price.toLocaleString('en-ZA')}
+                    <span className="text-sm font-normal">/Day</span>
                   </div>
                 </CardContent>
-                <CardFooter className="gap-2">
+                <CardFooter className="mt-auto flex gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
