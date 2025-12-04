@@ -218,6 +218,16 @@ export const rentalsApi = {
     return apiCall(`/api/rentals/${id}`);
   },
 
+  getMy: () => {
+    console.log('🏠 [Rentals] Fetching my rentals (protected)');
+    return apiCall('/api/rentals/my');
+  },
+
+  searchMy: (query: string) => {
+    console.log('🏠 [Rentals] Searching my rentals (protected)', query);
+    return apiCall(`/api/rentals/search?q=${encodeURIComponent(query)}`);
+  },
+
   // Protected routes
   create: (rentalData: any) => {
     console.log('🏠 [Rentals] Creating new rental (protected)', rentalData);
