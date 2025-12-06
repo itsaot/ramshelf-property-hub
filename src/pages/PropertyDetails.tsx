@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { rentalsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { isAuthenticated } from "@/lib/auth";
 import {
   Carousel,
   CarouselContent,
@@ -62,14 +61,6 @@ const PropertyDetails = () => {
   };
 
   const handleBooking = () => {
-    if (!isAuthenticated()) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to book this property.",
-      });
-      navigate("/login");
-      return;
-    }
     navigate(`/payment/${id}`);
   };
 
