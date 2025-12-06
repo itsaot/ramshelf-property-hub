@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Building2, Shield, Clock } from "lucide-react";
+import { Building2, Shield, Clock, Search } from "lucide-react";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyFilters, { PropertyFiltersState, defaultFilters } from "@/components/PropertyFilters";
 import Navbar from "@/components/Navbar";
 import { rentalsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<PropertyFiltersState>(defaultFilters);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -18,9 +18,9 @@ const Index = () => {
     fetchProperties();
   }, []);
 
-  const fetchProperties = async (search?: string) => {
+  const fetchProperties = async () => {
     setLoading(true);
-    const response = await rentalsApi.getAll(search ? { search } : undefined);
+    const response = await rentalsApi.getAll(filters.search ? { search: filters.search } : undefined);
     
     if (response.error) {
       toast({
@@ -29,68 +29,124 @@ const Index = () => {
         description: response.error,
       });
     } else {
-      // Backend returns array directly
       setProperties((response.data as any) || []);
     }
     setLoading(false);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchProperties(searchQuery);
+  // Client-side filtering for additional filters
+  const filteredProperties = useMemo(() => {
+    return properties.filter((property) => {
+      // Price filters
+      if (filters.minPrice && property.price < parseInt(filters.minPrice)) return false;
+      if (filters.maxPrice && property.price > parseInt(filters.maxPrice)) return false;
+      
+      // Room filters
+      if (filters.bedrooms && property.bedrooms < parseInt(filters.bedrooms)) return false;
+      if (filters.bathrooms && property.bathrooms < parseInt(filters.bathrooms)) return false;
+      
+      // Parking filters
+      if (filters.garageSpaces && (property.garageSpaces || 0) < parseInt(filters.garageSpaces)) return false;
+      if (filters.parkingSpaces && (property.parkingSpaces || 0) < parseInt(filters.parkingSpaces)) return false;
+      
+      // Boolean filters
+      if (filters.furnished === true && !property.furnished) return false;
+      if (filters.petFriendly === true && !property.petFriendly) return false;
+      
+      return true;
+    });
+  }, [properties, filters]);
+
+  const handleSearch = () => {
+    fetchProperties();
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section - Two Column Layout */}
-      <section className="py-12 md:py-20 bg-gradient-to-b from-background to-secondary/20">
+      {/* Hero Section - Property24 Style */}
+      <section 
+        className="relative py-16 md:py-24 bg-cover bg-center"
+        style={{
+          backgroundImage: 'linear-gradient(to bottom, hsl(var(--background) / 0.7), hsl(var(--background) / 0.9)), url("https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80")'
+        }}
+      >
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-            {/* Left Column - Text Content */}
-            <div className="space-y-6">
-              <p className="text-sm uppercase tracking-wider text-primary font-medium">
-                Property Rentals
-              </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight">
-                Luxurious & Simplified Home Finding
-              </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Our carefully curated properties are designed to help you find your perfect home, settle with ease, and indulge in everyday comfort.
-              </p>
-              
-              {/* Search Bar */}
-              <form onSubmit={handleSearch} className="flex gap-2 pt-4">
-                <Input
-                  type="text"
-                  placeholder="Search by location..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-12"
-                />
-                <Button type="submit" size="lg">
-                  Search
-                </Button>
-              </form>
-            </div>
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-4">
+              Find Your Perfect Rental
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground">
+              Search through thousands of verified properties across South Africa
+            </p>
+          </div>
 
-            {/* Right Column - Image */}
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-secondary/50">
-                <img 
-                  src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80" 
-                  alt="Beautiful home interior"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+          {/* Property24-style Search */}
+          <div className="max-w-4xl mx-auto">
+            <PropertyFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              onSearch={handleSearch}
+              loading={loading}
+            />
           </div>
         </div>
       </section>
 
+      {/* Properties Section */}
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold">
+                Available Properties
+              </h2>
+              <p className="text-muted-foreground mt-1">
+                {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} found
+              </p>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading properties...</p>
+            </div>
+          ) : filteredProperties.length === 0 ? (
+            <div className="text-center py-12 bg-card rounded-xl border border-border">
+              <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No properties found</h3>
+              <p className="text-muted-foreground mb-4">Try adjusting your search filters</p>
+              <Button variant="outline" onClick={() => setFilters(defaultFilters)}>
+                Clear Filters
+              </Button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProperties.map((property) => (
+                <PropertyCard
+                  key={property._id}
+                  id={property._id}
+                  title={property.title}
+                  location={property.address || property.location}
+                  price={property.price}
+                  bedrooms={property.bedrooms}
+                  bathrooms={property.bathrooms}
+                  imageUrl={property.images?.[0]}
+                  type={property.type}
+                  garageSpaces={property.garageSpaces}
+                  parkingSpaces={property.parkingSpaces}
+                  petFriendly={property.petFriendly}
+                  furnished={property.furnished}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Features - Elegant Circles */}
-      <section className="py-20">
+      <section className="py-20 bg-secondary/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm uppercase tracking-wider text-muted-foreground mb-3">
@@ -150,49 +206,6 @@ const Index = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Featured Properties */}
-      <section className="py-20 bg-secondary/20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <p className="text-sm uppercase tracking-wider text-primary font-medium mb-3">
-              Best of Collection 2025
-            </p>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-              Discover the Best in Rental Properties
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Elevate your lifestyle with our curated range. Where every property is selected to bring you comfort, luxury & convenience.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Loading properties...</p>
-            </div>
-          ) : properties.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No properties found. Check back soon!</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.slice(0, 6).map((property) => (
-                <PropertyCard
-                  key={property._id}
-                  id={property._id}
-                  title={property.title}
-                  location={property.address || property.location}
-                  price={property.price}
-                  bedrooms={property.bedrooms}
-                  bathrooms={property.bathrooms}
-                  imageUrl={property.images?.[0]}
-                  type={property.type}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 

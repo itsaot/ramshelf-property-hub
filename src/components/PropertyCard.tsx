@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, BedDouble, Bath } from "lucide-react";
+import { MapPin, BedDouble, Bath, Car, ParkingCircle, PawPrint, Sofa } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface PropertyCardProps {
@@ -12,6 +12,10 @@ interface PropertyCardProps {
   bathrooms: number;
   imageUrl?: string;
   type?: string;
+  garageSpaces?: number;
+  parkingSpaces?: number;
+  petFriendly?: boolean;
+  furnished?: boolean;
 }
 
 const PropertyCard = ({
@@ -23,10 +27,14 @@ const PropertyCard = ({
   bathrooms,
   imageUrl,
   type,
+  garageSpaces,
+  parkingSpaces,
+  petFriendly,
+  furnished,
 }: PropertyCardProps) => {
   return (
     <Link to={`/property/${id}`}>
-      <Card className="overflow-hidden hover-lift cursor-pointer border-border/50 shadow-sm hover:shadow-md transition-all group">
+      <Card className="overflow-hidden hover-lift cursor-pointer border-border/50 shadow-sm hover:shadow-md transition-all group h-full flex flex-col">
         <div className="aspect-[4/3] bg-muted relative overflow-hidden">
           {imageUrl ? (
             <img
@@ -39,14 +47,28 @@ const PropertyCard = ({
               <span className="text-muted-foreground text-sm">No image available</span>
             </div>
           )}
-          {type && (
-            <Badge className="absolute top-3 right-3 bg-background/90 text-foreground border-border/50">
-              {type}
-            </Badge>
-          )}
+          <div className="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end">
+            {type && (
+              <Badge className="bg-background/90 text-foreground border-border/50">
+                {type}
+              </Badge>
+            )}
+            {petFriendly && (
+              <Badge variant="secondary" className="bg-green-500/90 text-white border-0">
+                <PawPrint className="h-3 w-3 mr-1" />
+                Pets OK
+              </Badge>
+            )}
+            {furnished && (
+              <Badge variant="secondary" className="bg-blue-500/90 text-white border-0">
+                <Sofa className="h-3 w-3 mr-1" />
+                Furnished
+              </Badge>
+            )}
+          </div>
         </div>
 
-        <CardContent className="p-5 space-y-3">
+        <CardContent className="p-5 space-y-3 flex-1">
           <h3 className="font-serif font-semibold text-xl mb-1 line-clamp-1 group-hover:text-primary transition-colors">
             {title}
           </h3>
@@ -55,19 +77,32 @@ const PropertyCard = ({
             <span className="line-clamp-1">{location}</span>
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2 border-t border-border/50">
+          {/* Property Features Grid */}
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground pt-2 border-t border-border/50">
             <div className="flex items-center">
-              <BedDouble className="h-4 w-4 mr-1.5" />
-              <span>{bedrooms}</span>
+              <BedDouble className="h-4 w-4 mr-1.5 flex-shrink-0" />
+              <span>{bedrooms} Beds</span>
             </div>
             <div className="flex items-center">
-              <Bath className="h-4 w-4 mr-1.5" />
-              <span>{bathrooms}</span>
+              <Bath className="h-4 w-4 mr-1.5 flex-shrink-0" />
+              <span>{bathrooms} Baths</span>
             </div>
+            {(garageSpaces !== undefined && garageSpaces > 0) && (
+              <div className="flex items-center">
+                <Car className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                <span>{garageSpaces} Garage</span>
+              </div>
+            )}
+            {(parkingSpaces !== undefined && parkingSpaces > 0) && (
+              <div className="flex items-center">
+                <ParkingCircle className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                <span>{parkingSpaces} Parking</span>
+              </div>
+            )}
           </div>
         </CardContent>
 
-        <CardFooter className="p-5 pt-0">
+        <CardFooter className="p-5 pt-0 mt-auto">
           <div className="text-2xl font-serif font-bold text-primary">
             R{price.toLocaleString('en-ZA')}
             <span className="text-sm font-sans font-normal text-muted-foreground ml-1">/month</span>
