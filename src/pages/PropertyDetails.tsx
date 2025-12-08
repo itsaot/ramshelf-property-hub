@@ -30,6 +30,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import PropertyReviews from "@/components/PropertyReviews";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -340,6 +341,9 @@ const PropertyDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Property Reviews */}
+            {id && <PropertyReviews propertyId={id} />}
           </div>
 
           {/* Sidebar */}
