@@ -284,7 +284,7 @@ export const usersApi = {
 export const adminApi = {
   getAnalytics: () => apiCall('/api/admin/analytics'),
 
-  getFlags: () => apiCall('/api/admin/flags'),
+  getFlaggedContent: () => apiCall('/api/admin/flags'),
   
   // User management
   getAllUsers: () => {
@@ -308,6 +308,14 @@ export const adminApi = {
     });
   },
 
+  updateUserStatus: (id: string, action: 'suspend' | 'warn', reason?: string) => {
+    console.log(`👥 [Admin] Updating user status ${id}: ${action}`);
+    return apiCall(`/api/admin/users/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ action, reason }),
+    });
+  },
+
   deleteUser: (id: string) => {
     console.log(`👥 [Admin] Deleting user ${id}`);
     return apiCall(`/api/admin/users/${id}`, {
@@ -328,10 +336,17 @@ export const adminApi = {
     });
   },
 
+  // Content moderation
   deleteContent: (type: string, id: string) =>
     apiCall(`/api/admin/content/${type}/${id}`, {
       method: 'DELETE',
     }),
+
+  // Reviews management
+  getAllReviews: () => {
+    console.log('📝 [Admin] Fetching all reviews');
+    return apiCall('/api/admin/reviews');
+  },
 };
 
 // Reviews API
