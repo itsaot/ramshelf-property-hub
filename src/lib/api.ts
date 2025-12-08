@@ -353,11 +353,24 @@ export const adminApi = {
 export const reviewsApi = {
   getByUserId: (userId: string) => apiCall(`/api/reviews/user/${userId}`),
 
+  getByPropertyId: (propertyId: string) => {
+    console.log(`📝 [Reviews] Fetching reviews for property: ${propertyId}`);
+    return apiCall(`/api/reviews/property/${propertyId}`);
+  },
+
   create: (userId: string, reviewData: any) =>
     apiCall(`/api/reviews/${userId}`, {
       method: 'POST',
       body: JSON.stringify(reviewData),
     }),
+
+  createPropertyReview: (propertyId: string, reviewData: { rating: number; text: string }) => {
+    console.log(`📝 [Reviews] Creating property review for: ${propertyId}`, reviewData);
+    return apiCall(`/api/reviews/property/${propertyId}`, {
+      method: 'POST',
+      body: JSON.stringify(reviewData),
+    });
+  },
 
   update: (id: string, reviewData: any) =>
     apiCall(`/api/reviews/${id}`, {
