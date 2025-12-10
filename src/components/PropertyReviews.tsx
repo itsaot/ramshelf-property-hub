@@ -45,7 +45,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
 
   const fetchReviews = async () => {
     setLoading(true);
-    const response = await reviewsApi.getByPropertyId(propertyId);
+    const response = await reviewsApi.getByRentalId(propertyId);
     if (response.data) {
       setReviews(Array.isArray(response.data) ? response.data : []);
     }
@@ -80,7 +80,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
     }
 
     setSubmitting(true);
-    const response = await reviewsApi.createPropertyReview(propertyId, {
+    const response = await reviewsApi.createRentalReview(propertyId, {
       rating,
       text: reviewText.trim(),
     });
