@@ -353,9 +353,9 @@ export const adminApi = {
 export const reviewsApi = {
   getByUserId: (userId: string) => apiCall(`/api/reviews/user/${userId}`),
 
-  getByPropertyId: (propertyId: string) => {
-    console.log(`📝 [Reviews] Fetching reviews for property: ${propertyId}`);
-    return apiCall(`/api/reviews/property/${propertyId}`);
+  getByRentalId: (rentalId: string) => {
+    console.log(`📝 [Reviews] Fetching reviews for rental: ${rentalId}`);
+    return apiCall(`/api/reviews/rental/${rentalId}`);
   },
 
   create: (userId: string, reviewData: any) =>
@@ -364,9 +364,9 @@ export const reviewsApi = {
       body: JSON.stringify(reviewData),
     }),
 
-  createPropertyReview: (propertyId: string, reviewData: { rating: number; text: string }) => {
-    console.log(`📝 [Reviews] Creating property review for: ${propertyId}`, reviewData);
-    return apiCall(`/api/reviews/property/${propertyId}`, {
+  createRentalReview: (rentalId: string, reviewData: { rating: number; text: string }) => {
+    console.log(`📝 [Reviews] Creating rental review for: ${rentalId}`, reviewData);
+    return apiCall(`/api/reviews/rental/${rentalId}`, {
       method: 'POST',
       body: JSON.stringify(reviewData),
     });
