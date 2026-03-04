@@ -29,8 +29,8 @@ async function apiCall<T>(
     // Define public routes that don't need auth
     const isPublicRoute = endpoint.includes('/api/auth/login') || 
                           endpoint.includes('/api/auth/signup') ||
-                          (endpoint.includes('/api/rentals') && options.method === 'GET') ||
-                          endpoint.match(/^\/api\/rentals\/[^\/]+$/) && options.method === 'GET';
+                          endpoint.includes('/api/rentals/public') ||
+                          endpoint.includes('/api/payments');
     
     // Build headers object as plain Record
     const headers: Record<string, string> = {};
@@ -166,7 +166,7 @@ export const authApi = {
 
   adminLogin: async (credentials: { emailOrPhone: string; password: string }) => {
     console.log('🔐 [Auth] Attempting admin login...');
-    const result = await apiCall('/api/admin/login', {
+    const result = await apiCall('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         emailOrPhone: credentials.emailOrPhone,
@@ -210,11 +210,11 @@ export const rentalsApi = {
   getAll: (params?: { search?: string; minPrice?: number; maxPrice?: number }) => {
     const query = new URLSearchParams(params as any).toString();
     console.log('🏠 [Rentals] Fetching all rentals (public)', params);
-    return apiCall(`/api/rentals${query ? `?${query}` : ''}`);
+    return apiCall(`/api/rentals/public${query ? `?${query}` : ''}`);
   },
 
   getById: (id: string) => {
-    console.log(`🏠 [Rentals] Fetching rental by ID (public): ${id}`);
+    console.log(`🏠 [Rentals] Fetching rental by ID: ${id}`);
     return apiCall(`/api/rentals/${id}`);
   },
 
