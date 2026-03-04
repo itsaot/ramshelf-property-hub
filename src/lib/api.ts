@@ -421,6 +421,17 @@ export const checksApi = {
     apiCall(`/api/checks/${tenantId}`),
 };
 
+// Accounting API
+export const accountingApi = {
+  getTransactions: () => apiCall('/api/accounting'),
+
+  addTransaction: (data: { type: 'income' | 'expense'; amount: number; description: string }) =>
+    apiCall('/api/accounting', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+};
+
 // Notifications API
 export const notificationsApi = {
   getAll: () => apiCall('/api/notifications'),
