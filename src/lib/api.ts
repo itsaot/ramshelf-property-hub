@@ -391,16 +391,34 @@ export const messagesApi = {
   getMessages: (conversationId: string) => 
     apiCall(`/api/messages/${conversationId}`),
 
-  sendMessage: (conversationId: string, message: string) =>
+  sendMessage: (conversationId: string, text: string) =>
     apiCall(`/api/messages/${conversationId}`, {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ text }),
     }),
 
   startConversation: (userId: string) =>
     apiCall(`/api/messages/start/${userId}`, {
       method: 'POST',
     }),
+};
+
+// Checks API (Credit & Background)
+export const checksApi = {
+  runCreditCheck: (tenantId: string, score: number) =>
+    apiCall('/api/checks/credit', {
+      method: 'POST',
+      body: JSON.stringify({ tenantId, score }),
+    }),
+
+  runBackgroundCheck: (tenantId: string, passed: boolean, notes?: string) =>
+    apiCall('/api/checks/background', {
+      method: 'POST',
+      body: JSON.stringify({ tenantId, passed, notes }),
+    }),
+
+  getChecks: (tenantId: string) =>
+    apiCall(`/api/checks/${tenantId}`),
 };
 
 // Notifications API
