@@ -79,12 +79,12 @@ export const authService = {
     }
   },
 
-  adminLogin: async (credentials: { email: string; password: string }): Promise<ApiResponse> => {
+  adminLogin: async (credentials: { emailOrPhone: string; password: string }): Promise<ApiResponse> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({ emailOrPhone: credentials.emailOrPhone, password: credentials.password }),
       });
 
       const data = await response.json();
