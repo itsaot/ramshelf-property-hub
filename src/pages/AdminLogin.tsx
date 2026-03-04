@@ -23,7 +23,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     const response = await authService.adminLogin({ 
-      emailOrPhone: formData.email, 
+      email: formData.email, 
       password: formData.password 
     });
 
