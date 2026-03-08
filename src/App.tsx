@@ -16,6 +16,8 @@ import PropertyDetails from "./pages/PropertyDetails";
 import Payment from "./pages/Payment";
 import Accounting from "./pages/Accounting";
 import TenantChecks from "./pages/TenantChecks";
+import Disputes from "./pages/Disputes";
+import Maintenance from "./pages/Maintenance";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -94,6 +96,24 @@ const App = () => (
             element={
               <ProtectedRoute requireAdmin>
                 <TenantChecks />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/disputes"
+            element={
+              <ProtectedRoute>
+                <Disputes />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/maintenance"
+            element={
+              <ProtectedRoute>
+                <Maintenance />
               </ProtectedRoute>
             }
           />

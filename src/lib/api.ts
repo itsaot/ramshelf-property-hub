@@ -453,6 +453,46 @@ export const notificationsApi = {
     }),
 };
 
+// Disputes API
+export const disputesApi = {
+  getAll: () => apiCall('/api/disputes'),
+
+  create: (data: { subject: string; description: string; attachments?: string[] }) =>
+    apiCall('/api/disputes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id: string, status: 'open' | 'resolved' | 'rejected') =>
+    apiCall(`/api/disputes/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+};
+
+// Maintenance API
+export const maintenanceApi = {
+  getAll: () => apiCall('/api/maintenance'),
+
+  create: (data: { title: string; initialMessage: string; attachments?: string[] }) =>
+    apiCall('/api/maintenance', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  addMessage: (id: string, text: string, attachments?: string[]) =>
+    apiCall(`/api/maintenance/${id}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ text, attachments }),
+    }),
+
+  updateStatus: (id: string, status: 'open' | 'in-progress' | 'closed') =>
+    apiCall(`/api/maintenance/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+};
+
 // Payments API
 export const paymentsApi = {
   createPayment: (paymentData: any) =>

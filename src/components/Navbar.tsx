@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, User, LogOut, LayoutDashboard, Building2, DollarSign, ShieldCheck } from "lucide-react";
-import { getUser, logout, isAuthenticated, isAdmin, isLandlord } from "@/lib/auth";
+import { Home, User, LogOut, LayoutDashboard, Building2, DollarSign, ShieldCheck, AlertTriangle, Wrench } from "lucide-react";
+import { getUser, logout, isAuthenticated, isAdmin, isLandlord, isTenant } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
@@ -37,6 +37,16 @@ const Navbar = () => {
             <Link to="/landlord/properties" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
               Properties
             </Link>
+          )}
+          {authenticated && (
+            <>
+              <Link to="/disputes" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+                Disputes
+              </Link>
+              <Link to="/maintenance" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+                Maintenance
+              </Link>
+            </>
           )}
           {isAdmin() && (
             <>
