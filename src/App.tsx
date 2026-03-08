@@ -99,6 +99,24 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/disputes"
+            element={
+              <ProtectedRoute>
+                <Disputes />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/maintenance"
+            element={
+              <ProtectedRoute>
+                <Maintenance />
+              </ProtectedRoute>
+            }
+          />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

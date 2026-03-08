@@ -38,6 +38,16 @@ const Navbar = () => {
               Properties
             </Link>
           )}
+          {authenticated && (
+            <>
+              <Link to="/disputes" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+                Disputes
+              </Link>
+              <Link to="/maintenance" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
+                Maintenance
+              </Link>
+            </>
+          )}
           {isAdmin() && (
             <>
               <Link to="/admin" className="text-sm font-medium text-foreground hover:text-primary smooth-transition">
