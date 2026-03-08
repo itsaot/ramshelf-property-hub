@@ -510,18 +510,3 @@ export const paymentsApi = {
   verifyPaystack: (reference: string) =>
     apiCall(`/api/payments/paystack/verify/${reference}`),
 };
-  createPayment: (paymentData: any) =>
-    apiCall('/api/payments', {
-      method: 'POST',
-      body: JSON.stringify(paymentData),
-    }),
-
-  initializePaystack: (amount: number, email: string, reference: string) =>
-    apiCall('/api/payments/paystack/initialize', {
-      method: 'POST',
-      body: JSON.stringify({ amount, email, reference }),
-    }),
-
-  verifyPaystack: (reference: string) =>
-    apiCall(`/api/payments/paystack/verify/${reference}`),
-};
