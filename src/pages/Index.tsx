@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Shield, Clock, Search } from "lucide-react";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyFilters, { PropertyFiltersState, defaultFilters } from "@/components/PropertyFilters";
@@ -12,6 +13,7 @@ const Index = () => {
   const [filters, setFilters] = useState<PropertyFiltersState>(defaultFilters);
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pricingTab, setPricingTab] = useState<"all" | "monthly" | "daily">("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,49 +25,45 @@ const Index = () => {
     const response = await rentalsApi.getAll(filters.search ? { search: filters.search } : undefined);
     
     if (response.error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: response.error,
-      });
+      toast({ variant: "destructive", title: "Error", description: response.error });
     } else {
       setProperties((response.data as any) || []);
     }
     setLoading(false);
   };
 
-  // Client-side filtering for additional filters
   const filteredProperties = useMemo(() => {
     return properties.filter((property) => {
-      // Price filters
       if (filters.minPrice && property.price < parseInt(filters.minPrice)) return false;
       if (filters.maxPrice && property.price > parseInt(filters.maxPrice)) return false;
-      
-      // Room filters
       if (filters.bedrooms && property.bedrooms < parseInt(filters.bedrooms)) return false;
       if (filters.bathrooms && property.bathrooms < parseInt(filters.bathrooms)) return false;
-      
-      // Parking filters
       if (filters.garageSpaces && (property.garageSpaces || 0) < parseInt(filters.garageSpaces)) return false;
       if (filters.parkingSpaces && (property.parkingSpaces || 0) < parseInt(filters.parkingSpaces)) return false;
-      
-      // Boolean filters
       if (filters.furnished === true && !property.furnished) return false;
       if (filters.petFriendly === true && !property.petFriendly) return false;
+
+      // Pricing type filter
+      const propPricingType = property.pricingType || "monthly";
+      if (pricingTab === "monthly" && propPricingType !== "monthly") return false;
+      if (pricingTab === "daily" && propPricingType !== "daily") return false;
       
       return true;
     });
-  }, [properties, filters]);
+  }, [properties, filters, pricingTab]);
 
   const handleSearch = () => {
     fetchProperties();
   };
 
+  const monthlyCount = properties.filter((p) => (p.pricingType || "monthly") === "monthly").length;
+  const dailyCount = properties.filter((p) => (p.pricingType || "monthly") === "daily").length;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section - Property24 Style */}
+      {/* Hero Section */}
       <section 
         className="relative py-16 md:py-24 bg-cover bg-center"
         style={{
@@ -82,7 +80,6 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Property24-style Search */}
           <div className="max-w-4xl mx-auto">
             <PropertyFilters
               filters={filters}
@@ -97,7 +94,7 @@ const Index = () => {
       {/* Properties Section */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
               <h2 className="text-2xl md:text-3xl font-serif font-bold">
                 Available Properties
@@ -106,6 +103,14 @@ const Index = () => {
                 {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} found
               </p>
             </div>
+            {/* Pricing Type Tabs */}
+            <Tabs value={pricingTab} onValueChange={(v) => setPricingTab(v as any)}>
+              <TabsList>
+                <TabsTrigger value="all">All ({properties.length})</TabsTrigger>
+                <TabsTrigger value="monthly">Per Month ({monthlyCount})</TabsTrigger>
+                <TabsTrigger value="daily">Per Day ({dailyCount})</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           {loading ? (
@@ -117,7 +122,7 @@ const Index = () => {
               <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-semibold mb-2">No properties found</h3>
               <p className="text-muted-foreground mb-4">Try adjusting your search filters</p>
-              <Button variant="outline" onClick={() => setFilters(defaultFilters)}>
+              <Button variant="outline" onClick={() => { setFilters(defaultFilters); setPricingTab("all"); }}>
                 Clear Filters
               </Button>
             </div>
@@ -138,6 +143,7 @@ const Index = () => {
                   parkingSpaces={property.parkingSpaces}
                   petFriendly={property.petFriendly}
                   furnished={property.furnished}
+                  pricingType={property.pricingType || "monthly"}
                 />
               ))}
             </div>
@@ -145,66 +151,33 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features - Elegant Circles */}
+      {/* Features */}
       <section className="py-20 bg-secondary/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-3">
-              Why Choose Ramshelf
-            </p>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold">
-              Popular Categories
-            </h2>
+            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-3">Why Choose Ramshelf</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold">Popular Categories</h2>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-            <div className="text-center space-y-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-primary/20 overflow-hidden mx-auto p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
-                  <Building2 className="h-12 w-12 md:h-16 md:w-16 text-primary" />
+            {[
+              { icon: Building2, title: "Apartments", desc: "Modern living" },
+              { icon: Shield, title: "Secure", desc: "Verified properties" },
+              { icon: Clock, title: "Fast", desc: "Quick booking" },
+              { icon: Search, title: "Easy", desc: "Simple search" },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="text-center space-y-4">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-primary/20 overflow-hidden mx-auto p-1">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
+                    <Icon className="h-12 w-12 md:h-16 md:w-16 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-serif font-semibold text-lg mb-1">{title}</h3>
+                  <p className="text-sm text-muted-foreground">{desc}</p>
                 </div>
               </div>
-              <div>
-                <h3 className="font-serif font-semibold text-lg mb-1">Apartments</h3>
-                <p className="text-sm text-muted-foreground">Modern living</p>
-              </div>
-            </div>
-
-            <div className="text-center space-y-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-primary/20 overflow-hidden mx-auto p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
-                  <Shield className="h-12 w-12 md:h-16 md:w-16 text-primary" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-serif font-semibold text-lg mb-1">Secure</h3>
-                <p className="text-sm text-muted-foreground">Verified properties</p>
-              </div>
-            </div>
-
-            <div className="text-center space-y-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-primary/20 overflow-hidden mx-auto p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
-                  <Clock className="h-12 w-12 md:h-16 md:w-16 text-primary" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-serif font-semibold text-lg mb-1">Fast</h3>
-                <p className="text-sm text-muted-foreground">Quick booking</p>
-              </div>
-            </div>
-
-            <div className="text-center space-y-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-primary/20 overflow-hidden mx-auto p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
-                  <Search className="h-12 w-12 md:h-16 md:w-16 text-primary" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-serif font-semibold text-lg mb-1">Easy</h3>
-                <p className="text-sm text-muted-foreground">Simple search</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -212,19 +185,13 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-            Ready to List Your Property?
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Ready to List Your Property?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of landlords on Ramshelf and connect with quality tenants looking for their perfect home.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link to="/signup">Get Started</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/login">Learn More</Link>
-            </Button>
+            <Button size="lg" asChild><Link to="/signup">Get Started</Link></Button>
+            <Button size="lg" variant="outline" asChild><Link to="/login">Learn More</Link></Button>
           </div>
         </div>
       </section>

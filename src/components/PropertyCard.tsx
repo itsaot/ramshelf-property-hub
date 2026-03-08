@@ -16,6 +16,7 @@ interface PropertyCardProps {
   parkingSpaces?: number;
   petFriendly?: boolean;
   furnished?: boolean;
+  pricingType?: "monthly" | "daily";
 }
 
 const PropertyCard = ({
@@ -31,7 +32,10 @@ const PropertyCard = ({
   parkingSpaces,
   petFriendly,
   furnished,
+  pricingType = "monthly",
 }: PropertyCardProps) => {
+  const priceLabel = pricingType === "daily" ? "/day" : "/month";
+
   return (
     <Link to={`/property/${id}`}>
       <Card className="overflow-hidden hover-lift cursor-pointer border-border/50 shadow-sm hover:shadow-md transition-all group h-full flex flex-col">
@@ -53,6 +57,9 @@ const PropertyCard = ({
                 {type}
               </Badge>
             )}
+            <Badge className={pricingType === "daily" ? "bg-amber-500/90 text-white border-0" : "bg-primary/90 text-primary-foreground border-0"}>
+              {pricingType === "daily" ? "Daily" : "Monthly"}
+            </Badge>
             {petFriendly && (
               <Badge variant="secondary" className="bg-green-500/90 text-white border-0">
                 <PawPrint className="h-3 w-3 mr-1" />
@@ -77,7 +84,6 @@ const PropertyCard = ({
             <span className="line-clamp-1">{location}</span>
           </div>
 
-          {/* Property Features Grid */}
           <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground pt-2 border-t border-border/50">
             <div className="flex items-center">
               <BedDouble className="h-4 w-4 mr-1.5 flex-shrink-0" />
@@ -105,7 +111,7 @@ const PropertyCard = ({
         <CardFooter className="p-5 pt-0 mt-auto">
           <div className="text-2xl font-serif font-bold text-primary">
             R{price.toLocaleString('en-ZA')}
-            <span className="text-sm font-sans font-normal text-muted-foreground ml-1">/month</span>
+            <span className="text-sm font-sans font-normal text-muted-foreground ml-1">{priceLabel}</span>
           </div>
         </CardFooter>
       </Card>

@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Star, Send } from "lucide-react";
+import { Star, Send, Flag, Trash2 } from "lucide-react";
 import { reviewsApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { isAuthenticated, getUser } from "@/lib/auth";
+import { isAuthenticated, getUser, isAdmin } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 
 interface Review {
@@ -21,6 +21,7 @@ interface Review {
   };
   rating: number;
   text: string;
+  flagged?: boolean;
   createdAt: string;
 }
 
@@ -38,6 +39,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
   const [reviewText, setReviewText] = useState("");
 
   const user = getUser();
+  const admin = isAdmin();
 
   useEffect(() => {
     fetchReviews();
@@ -54,28 +56,15 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
 
   const handleSubmitReview = async () => {
     if (!isAuthenticated()) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to leave a review.",
-      });
+      toast({ title: "Login Required", description: "Please log in to leave a review." });
       return;
     }
-
     if (rating === 0) {
-      toast({
-        variant: "destructive",
-        title: "Rating Required",
-        description: "Please select a star rating.",
-      });
+      toast({ variant: "destructive", title: "Rating Required", description: "Please select a star rating." });
       return;
     }
-
     if (!reviewText.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Review Required",
-        description: "Please write a review.",
-      });
+      toast({ variant: "destructive", title: "Review Required", description: "Please write a review." });
       return;
     }
 
@@ -86,21 +75,35 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
     });
 
     if (response.error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: response.error,
-      });
+      toast({ variant: "destructive", title: "Error", description: response.error });
     } else {
-      toast({
-        title: "Review Submitted",
-        description: "Thank you for your feedback!",
-      });
+      toast({ title: "Review Submitted", description: "Thank you for your feedback!" });
       setRating(0);
       setReviewText("");
       fetchReviews();
     }
     setSubmitting(false);
+  };
+
+  const handleFlagReview = async (reviewId: string) => {
+    const response = await reviewsApi.flag(reviewId);
+    if (response.error) {
+      toast({ variant: "destructive", title: "Error", description: response.error });
+    } else {
+      toast({ title: "Flagged", description: "Review has been flagged for moderation." });
+      fetchReviews();
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm("Are you sure you want to delete this review?")) return;
+    const response = await reviewsApi.delete(reviewId);
+    if (response.error) {
+      toast({ variant: "destructive", title: "Error", description: response.error });
+    } else {
+      toast({ title: "Deleted", description: "Review has been deleted." });
+      fetchReviews();
+    }
   };
 
   const getReviewerName = (reviewer: Review["reviewer"]) => {
@@ -113,12 +116,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
 
   const getInitials = (reviewer: Review["reviewer"]) => {
     const name = getReviewerName(reviewer);
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   const averageRating =
@@ -133,9 +131,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
           <CardTitle className="flex items-center gap-2">
             Reviews
             {reviews.length > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
-                ({reviews.length})
-              </span>
+              <span className="text-sm font-normal text-muted-foreground">({reviews.length})</span>
             )}
           </CardTitle>
           {reviews.length > 0 && (
@@ -147,8 +143,8 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Write Review Form */}
-        {isAuthenticated() && (
+        {/* Write Review Form - hidden for admin */}
+        {isAuthenticated() && !admin && (
           <div className="space-y-4 p-4 bg-secondary/30 rounded-lg">
             <h4 className="font-medium">Write a Review</h4>
             <div className="flex items-center gap-1">
@@ -180,10 +176,7 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
               onChange={(e) => setReviewText(e.target.value)}
               rows={3}
             />
-            <Button
-              onClick={handleSubmitReview}
-              disabled={submitting || rating === 0 || !reviewText.trim()}
-            >
+            <Button onClick={handleSubmitReview} disabled={submitting || rating === 0 || !reviewText.trim()}>
               <Send className="h-4 w-4 mr-2" />
               {submitting ? "Submitting..." : "Submit Review"}
             </Button>
@@ -231,11 +224,51 @@ const PropertyReviews = ({ propertyId }: PropertyReviewsProps) => {
                           ))}
                         </div>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
+                        </span>
+                        {/* Flag & Delete buttons for admin */}
+                        {admin && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-500/10"
+                              onClick={() => handleFlagReview(review._id)}
+                              title="Flag review"
+                            >
+                              <Flag className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDeleteReview(review._id)}
+                              title="Delete review"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        {/* Flag button for authenticated non-admin users */}
+                        {isAuthenticated() && !admin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-orange-500 hover:bg-orange-500/10"
+                            onClick={() => handleFlagReview(review._id)}
+                            title="Report review"
+                          >
+                            <Flag className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{review.text}</p>
+                    {review.flagged && admin && (
+                      <span className="text-xs text-orange-500 font-medium">⚠ Flagged for review</span>
+                    )}
                   </div>
                 </div>
                 <Separator className="mt-4" />
