@@ -382,6 +382,12 @@ export const reviewsApi = {
     apiCall(`/api/reviews/${id}`, {
       method: 'DELETE',
     }),
+
+  flag: (id: string) =>
+    apiCall(`/api/reviews/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ flagged: true }),
+    }),
 };
 
 // Messages API
